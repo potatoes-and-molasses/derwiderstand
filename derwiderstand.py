@@ -139,4 +139,4 @@ async def newgame(ctx, *args):
     
 
 
-bot.run('NjAxNDA3MDQ4OTEwODk3MTcw.XTC_Sw.70GIMRagYdWQdHRuyCKCG4eh66w')
+bot.run(db['token'])
