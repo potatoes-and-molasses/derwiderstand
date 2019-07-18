@@ -2,7 +2,7 @@ import discord
 import json
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix='$')
+bot = commands.Bot(command_prefix='!')
 
 db = json.load(open('db.json','r'))
 
@@ -21,17 +21,21 @@ async def register(ctx, arg):
 @bot.command()
 async def showscore(ctx):
     sort = sorted(db['players'], key=lambda x: -db['players'][x]['score'])
-    await ctx.send('\n'.join('[%s]: %s (%.2f'%(i,db['players'][i]['score'],100.0*db['players'][i]['wins']/(db['players'][i]['wins']+db['players'][i]['losses']))+'%)' for i in db['players']))
+    await ctx.send('current standings:\n-------------\n'+'\n'.join('[%s]: %s (%.2f'%(i,db['players'][i]['score'],100.0*db['players'][i]['wins']/(db['players'][i]['wins']+db['players'][i]['losses']))+'%)' for i in sort))
     
 @bot.command()
-async def newgame(ctx):
-    msg = await ctx.send('choose number of players')
+async def newgame(ctx, *args):
+
+    
+    
 
     reactions = {"\u0035\u20E3":5, "\u0036\u20E3":6,"\u0037\u20E3":7,"\u0038\u20E3":8,"\u0039\u20E3":9, u"\U0001F51F":10}
     roles = {'✅':'resistance', '❌':'spy', u"\U0001F1F7":'rogue', u"\U0001F1F2":'merlin'}
     base_roles = ['resistance', 'spy']
 
 
+    
+    msg = await ctx.send('choose number of players')
     for i in reactions:
 
         await msg.add_reaction(i)
@@ -43,10 +47,12 @@ async def newgame(ctx):
     answer, user = await bot.wait_for('reaction_add', check=check_author)
 
     player_count = reactions[answer.emoji]
-    await ctx.send('%s players game\n-------------\nselect participants & roles from the list'%player_count)
+    await ctx.send('beep boop beep\n-------------\nselect participants & roles from the list')
 
 
     for player in db['players']:
+        if args and player not in args:
+            continue
         res = await ctx.send(player)
         
         for i in roles:
@@ -118,7 +124,10 @@ async def newgame(ctx):
     for i in losers:
         db['players'][i]['losses'] += 1
     
-    print(winners,losers)
+    await ctx.send('winners: %s\nlosers: %s' % (', '.join(winners), ', '.join(losers)))
+
+
+    
     commit()
     
     
