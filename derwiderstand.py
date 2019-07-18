@@ -21,7 +21,7 @@ async def register(ctx, arg):
 @bot.command()
 async def showscore(ctx):
     sort = sorted(db['players'], key=lambda x: -db['players'][x]['score'])
-    await ctx.send('current standings:\n-------------\n'+'\n'.join('[%s]: %s (%.2f'%(i,db['players'][i]['score'],100.0*db['players'][i]['wins']/(db['players'][i]['wins']+db['players'][i]['losses']))+'%)' for i in sort))
+    await ctx.send('current standings:\n[points // win rate]\n-------------\n'+'\n'.join('%s. %s\n[%s // %.2f'%(n+1,i,db['players'][i]['score'],100.0*db['players'][i]['wins']/(0.0000000000000000000000000001+db['players'][i]['wins']+db['players'][i]['losses']))+'%]\n-------------' for n,i in enumerate(sort)))
     
 @bot.command()
 async def newgame(ctx, *args):
@@ -47,13 +47,13 @@ async def newgame(ctx, *args):
     answer, user = await bot.wait_for('reaction_add', check=check_author)
 
     player_count = reactions[answer.emoji]
-    await ctx.send('beep boop beep\n-------------\nselect participants & roles from the list')
+    await ctx.send('beep boop beep\nselect participants & roles')
 
 
     for player in db['players']:
         if args and player not in args:
             continue
-        res = await ctx.send(player)
+        res = await ctx.send('-------------\n'+player)
         
         for i in roles:
             await res.add_reaction(i)
@@ -62,7 +62,7 @@ async def newgame(ctx, *args):
     current_players = set()
     while len(current_players) < player_count:
         answer, user = await bot.wait_for('reaction_add', check=check_author)
-        player = answer.message.content
+        player = answer.message.content.split('\n')[-1]
         if roles[answer.emoji] not in base_roles:
             continue
         if player not in current_players:
@@ -76,7 +76,7 @@ async def newgame(ctx, *args):
         if player_roles:
             final_roles[i] = player_roles
 
-    msg = await ctx.send('select winner to finalize results')#\n(rogue+resistance=rogue resistance win, merlin+spy=spies win by guessing merlin, etc.. press the spy/resistance button last as it finalizes the choice)
+    msg = await ctx.send('select winning team to finalize results')#\n(rogue+resistance=rogue resistance win, merlin+spy=spies win by guessing merlin, etc.. press the spy/resistance button last as it finalizes the choice)
     for i in roles:
 
         await msg.add_reaction(i)
@@ -124,7 +124,7 @@ async def newgame(ctx, *args):
     for i in losers:
         db['players'][i]['losses'] += 1
     
-    await ctx.send('winners: %s\nlosers: %s' % (', '.join(winners), ', '.join(losers)))
+    await ctx.send('winners: %s\nlosers: %s' % (', '.join(['[%s]'%i for i in winners]), ', '.join(['[%s]'%i for i in losers])))
 
 
     
@@ -139,4 +139,4 @@ async def newgame(ctx, *args):
     
 
 
-bot.run('NjAxNDA3MDQ4OTEwODk3MTcw.XTB2pw.9Ez2Fr2aAYSOb0XC7AVbWX26i8E')
+bot.run('NjAxNDA3MDQ4OTEwODk3MTcw.XTC_Sw.70GIMRagYdWQdHRuyCKCG4eh66w')
